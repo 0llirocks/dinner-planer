@@ -35,8 +35,10 @@ Leere Einträge werden gelöscht. Bei inkompatiblen Änderungen neuen Schlüssel
 
 ## Vorschläge
 
-`suggest()` in `app.js` liefert bisherige Gerichte (ohne den Eintrag des eigenen Tages), gefiltert nach der Eingabe.
-Gerichte der Vorwoche stehen zuerst, danach die zuletzt verwendeten. Sie erscheinen als tippbare Chips unter dem fokussierten Feld.
+Vorschläge erscheinen **ausschließlich als Dropdown beim Eintippen** unter dem Feld (`.menu`). Bei leerem Feld gibt es keine Vorschläge,
+und es gibt keine Chips/Pills mit bestehenden Gerichten. `suggest()` in `app.js` liefert bisherige Gerichte (ohne den Eintrag des eigenen Tages),
+die zur Eingabe passen: Treffer am Wortanfang zuerst, dann Gerichte der Vorwoche, dann die zuletzt verwendeten (max. 6).
+Bei wenig Platz unter dem Feld (Tastatur) klappt das Dropdown nach oben auf.
 
 ## Lokal testen
 

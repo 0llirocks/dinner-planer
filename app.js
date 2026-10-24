@@ -23,22 +23,25 @@
     try { localStorage.setItem(KEY, JSON.stringify(meals)); } catch { /* Speicher voll/gesperrt */ }
   }
 
-  // Vorschläge: bisherige Gerichte, gefiltert nach Eingabe; Gerichte der Vorwoche zuerst, dann zuletzt genutzte
+  // Vorschläge nur beim Tippen: bisherige Gerichte, die zur Eingabe passen.
+  // Reihenfolge: Treffer am Wortanfang, Gerichte der Vorwoche, zuletzt verwendete.
   function suggest(query, ownKey) {
+    const q = query.trim().toLowerCase();
+    if (!q) return [];
     const last = new Map();
     for (const [k, m] of Object.entries(meals)) {
       if (k !== ownKey && (!last.has(m) || k > last.get(m))) last.set(m, k);
     }
     const prev = new Set();
     for (let i = 1; i <= 7; i++) { const m = meals[iso(addDays(start, -i))]; if (m) prev.add(m); }
-    const q = query.trim().toLowerCase();
+    const rank = m => (m.toLowerCase().startsWith(q) ? 2 : 0) + (prev.has(m) ? 1 : 0);
     return [...last.keys()]
-      .filter(m => m.toLowerCase() !== q && (!q || m.toLowerCase().includes(q)))
-      .sort((a, b) => (prev.has(b) - prev.has(a)) || last.get(b).localeCompare(last.get(a)))
-      .slice(0, 15);
+      .filter(m => m.toLowerCase() !== q && m.toLowerCase().includes(q))
+      .sort((a, b) => (rank(b) - rank(a)) || last.get(b).localeCompare(last.get(a)))
+      .slice(0, 6);
   }
 
-  function fillChips(box, input, key) {
+  function fillMenu(box, input, key) {
     const items = suggest(input.value, key);
     box.textContent = '';
     for (const m of items) {
@@ -48,6 +51,12 @@
       box.append(b);
     }
     box.hidden = !items.length || document.activeElement !== input;
+    if (!box.hidden) {
+      // Nicht genug Platz unter dem Feld (Tastatur)? Dann nach oben aufklappen.
+      const vv = window.visualViewport;
+      const bottom = vv ? vv.offsetTop + vv.height : innerHeight;
+      box.classList.toggle('up', bottom - input.getBoundingClientRect().bottom < items.length * 44 + 16);
+    }
   }
 
   function render() {
@@ -65,8 +74,8 @@
       li.className = 'day' + (key === today ? ' today' : '');
       li.innerHTML = `<div class="row"><label class="dow" for="m${i}">${fmtDow.format(d)}<small>${fmtShort.format(d)}</small></label>` +
         `<input id="m${i}" type="text" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="Gericht"></div>` +
-        `<div class="chips" hidden></div>`;
-      const input = li.querySelector('input'), box = li.querySelector('.chips');
+        `<div class="menu" hidden></div>`;
+      const input = li.querySelector('input'), box = li.querySelector('.menu');
       input.value = meals[key] || '';
 
       const commit = () => {
@@ -74,8 +83,7 @@
         if (v) meals[key] = v; else delete meals[key];
         write();
       };
-      input.addEventListener('input', () => { commit(); fillChips(box, input, key); });
-      input.addEventListener('focus', () => fillChips(box, input, key));
+      input.addEventListener('input', () => { commit(); fillMenu(box, input, key); });
       input.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
       input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
       box.addEventListener('mousedown', e => e.preventDefault()); // Fokus behalten
