@@ -73,7 +73,7 @@
       const li = document.createElement('li');
       li.className = 'day' + (key === today ? ' today' : '');
       li.innerHTML = `<div class="row"><label class="dow" for="m${i}">${fmtDow.format(d)}<small>${fmtShort.format(d)}</small></label>` +
-        `<input id="m${i}" type="text" autocomplete="off" autocapitalize="sentences" enterkeyhint="done" placeholder="Gericht"></div>` +
+        `<input id="m${i}" type="text" autocomplete="off" autocapitalize="sentences" enterkeyhint="${i < 6 ? 'next' : 'done'}" placeholder="Gericht"></div>` +
         `<div class="menu" hidden></div>`;
       const input = li.querySelector('input'), box = li.querySelector('.menu');
       input.value = meals[key] || '';
@@ -83,16 +83,19 @@
         if (v) meals[key] = v; else delete meals[key];
         write();
       };
+      // Weiter zum nächsten Tag (Tastatur bleibt offen); nach dem letzten Tag schließt sie
+      const next = () => { const n = $('m' + (i + 1)); if (n) n.focus(); else input.blur(); };
       input.addEventListener('input', () => { commit(); fillMenu(box, input, key); });
       input.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
-      input.addEventListener('keydown', e => { if (e.key === 'Enter') input.blur(); });
+      input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); next(); } });
       box.addEventListener('mousedown', e => e.preventDefault()); // Fokus behalten
       box.addEventListener('click', e => {
         const b = e.target.closest('button');
         if (!b) return;
         input.value = b.textContent;
         commit();
-        input.blur();
+        box.hidden = true;
+        next();
       });
       list.append(li);
     }

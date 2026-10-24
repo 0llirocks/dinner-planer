@@ -40,6 +40,11 @@ und es gibt keine Chips/Pills mit bestehenden Gerichten. `suggest()` in `app.js`
 die zur Eingabe passen: Treffer am Wortanfang zuerst, dann Gerichte der Vorwoche, dann die zuletzt verwendeten (max. 6).
 Bei wenig Platz unter dem Feld (Tastatur) klappt das Dropdown nach oben auf.
 
+## Eingabe
+
+Nach Enter/„Weiter“ oder nach Auswahl eines Vorschlags springt der Fokus direkt ins Feld des nächsten Tages, damit die ganze Woche
+nacheinander eingetragen werden kann (Tastatur bleibt offen). Beim letzten Tag (Montag) wird die Tastatur geschlossen.
+
 ## Lokal testen
 
 `python3 -m http.server 8080` im Repo-Root, dann `http://localhost:8080`. Optional Syntaxcheck: `node --check app.js sw.js`.
