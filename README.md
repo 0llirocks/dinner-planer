@@ -1,4 +1,4 @@
-# Abendbrot-Planer
+# Dinner Planner
 
 Schlichte PWA für das iPhone, um das Abendbrot der Woche zu planen. Die Woche beginnt dienstags.
 Alle Daten bleiben lokal im Browser (`localStorage`), es gibt keinen Server und keine Abhängigkeiten.

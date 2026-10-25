@@ -4,7 +4,7 @@ Hinweise für Coding-Agents und Mitwirkende an diesem Repo.
 
 ## Zweck
 
-Abendbrot-Planer: PWA, mit der man das Abendbrot für die kommende Woche plant. Nur dafür, nichts darüber hinaus.
+Dinner Planner: PWA, mit der man das Abendbrot für die kommende Woche plant. Nur dafür, nichts darüber hinaus.
 
 ## Harte Vorgaben
 
@@ -16,6 +16,8 @@ Abendbrot-Planer: PWA, mit der man das Abendbrot für die kommende Woche plant. 
 - Schlicht bleiben: kein Zusatzfeature ohne Auftrag (keine Rezepte, Einkaufslisten, Konten, Sync).
 - Hell- und Dunkelmodus laufen über CSS-Variablen und `prefers-color-scheme`.
 - Sichtbare Texte auf Deutsch.
+- Die Seite ist **nicht scrollbar** (`overflow: hidden` auf `html`/`body`, Höhe `100dvh`). Nur bei extrem viel Text scrollt die Liste intern.
+- Das Eingabefeld pro Tag ist eine `textarea`, die per `autosize()` mit dem Inhalt wächst, damit lange Gerichte vollständig sichtbar sind. Enter springt weiter und fügt keinen Zeilenumbruch ein.
 
 ## Struktur
 
@@ -35,7 +37,7 @@ Leere Einträge werden gelöscht. Bei inkompatiblen Änderungen neuen Schlüssel
 
 ## Vorschläge
 
-Vorschläge erscheinen **ausschließlich als Dropdown beim Eintippen** unter dem Feld (`.menu`). Bei leerem Feld gibt es keine Vorschläge,
+Vorschläge erscheinen **ausschließlich als Dropdown beim Eintippen** unter dem Feld, genau in dessen Breite (`.menu`, `position: fixed`, Position wird in `fillMenu()` gesetzt). Bei leerem Feld gibt es keine Vorschläge,
 und es gibt keine Chips/Pills mit bestehenden Gerichten. `suggest()` in `app.js` liefert bisherige Gerichte (ohne den Eintrag des eigenen Tages),
 die zur Eingabe passen: Treffer am Wortanfang zuerst, dann Gerichte der Vorwoche, dann die zuletzt verwendeten (max. 6).
 Bei wenig Platz unter dem Feld (Tastatur) klappt das Dropdown nach oben auf.
@@ -51,7 +53,7 @@ nacheinander eingetragen werden kann (Tastatur bleibt offen). Beim letzten Tag (
 
 ## Service Worker
 
-Wird eine Datei hinzugefügt oder umbenannt, `ASSETS` in `sw.js` anpassen und `CACHE` hochzählen (`abendbrot-v2`, ...).
+Wird eine Datei hinzugefügt oder umbenannt, `ASSETS` in `sw.js` anpassen und `CACHE` hochzählen (`dinner-planner-v2`, ...).
 
 ## Commits
 

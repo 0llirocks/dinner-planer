@@ -15,6 +15,8 @@
 
   const $ = id => document.getElementById(id);
   const list = $('days');
+  // Textfeld wächst mit dem Inhalt, damit lange Gerichte vollständig lesbar sind
+  const autosize = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 'px'; };
 
   function read() {
     try { return JSON.parse(localStorage.getItem(KEY)) || {}; } catch { return {}; }
@@ -51,12 +53,16 @@
       box.append(b);
     }
     box.hidden = !items.length || document.activeElement !== input;
-    if (!box.hidden) {
-      // Nicht genug Platz unter dem Feld (Tastatur)? Dann nach oben aufklappen.
-      const vv = window.visualViewport;
-      const bottom = vv ? vv.offsetTop + vv.height : innerHeight;
-      box.classList.toggle('up', bottom - input.getBoundingClientRect().bottom < items.length * 44 + 16);
-    }
+    if (box.hidden) return;
+    // Dropdown unter dem Textfeld, in dessen Breite; bei wenig Platz (Tastatur) darüber
+    const r = input.getBoundingClientRect();
+    const vv = window.visualViewport;
+    const bottom = vv ? vv.offsetTop + vv.height : innerHeight;
+    const up = bottom - r.bottom < Math.min(items.length * 44 + 2, 280) + 8;
+    box.style.left = r.left + 'px';
+    box.style.width = r.width + 'px';
+    box.style.top = up ? 'auto' : r.bottom + 4 + 'px';
+    box.style.bottom = up ? innerHeight - r.top + 4 + 'px' : 'auto';
   }
 
   function render() {
@@ -73,9 +79,9 @@
       const li = document.createElement('li');
       li.className = 'day' + (key === today ? ' today' : '');
       li.innerHTML = `<div class="row"><label class="dow" for="m${i}">${fmtDow.format(d)}<small>${fmtShort.format(d)}</small></label>` +
-        `<input id="m${i}" type="text" autocomplete="off" autocapitalize="sentences" enterkeyhint="${i < 6 ? 'next' : 'done'}" placeholder="Gericht"></div>` +
-        `<div class="menu" hidden></div>`;
-      const input = li.querySelector('input'), box = li.querySelector('.menu');
+        `<div class="field"><textarea id="m${i}" rows="1" autocomplete="off" autocapitalize="sentences" enterkeyhint="${i < 6 ? 'next' : 'done'}" placeholder="Gericht"></textarea>` +
+        `<div class="menu" hidden></div></div></div>`;
+      const input = li.querySelector('textarea'), box = li.querySelector('.menu');
       input.value = meals[key] || '';
 
       const commit = () => {
@@ -85,7 +91,12 @@
       };
       // Weiter zum nächsten Tag (Tastatur bleibt offen); nach dem letzten Tag schließt sie
       const next = () => { const n = $('m' + (i + 1)); if (n) n.focus(); else input.blur(); };
-      input.addEventListener('input', () => { commit(); fillMenu(box, input, key); });
+      input.addEventListener('input', () => {
+        if (input.value.includes('\n')) input.value = input.value.replace(/\s*\n+\s*/g, ' ');
+        autosize(input);
+        commit();
+        fillMenu(box, input, key);
+      });
       input.addEventListener('blur', () => setTimeout(() => { box.hidden = true; }, 150));
       input.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); next(); } });
       box.addEventListener('mousedown', e => e.preventDefault()); // Fokus behalten
@@ -93,19 +104,22 @@
         const b = e.target.closest('button');
         if (!b) return;
         input.value = b.textContent;
+        autosize(input);
         commit();
         box.hidden = true;
         next();
       });
       list.append(li);
+      autosize(input);
     }
   }
 
   $('prev').onclick = () => { start = addDays(start, -7); render(); };
   $('next').onclick = () => { start = addDays(start, 7); render(); };
   $('jump').onclick = () => { start = addDays(thisWeek(), 7); render(); };
+  addEventListener('resize', () => list.querySelectorAll('textarea').forEach(autosize));
   document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible' && document.activeElement?.tagName !== 'INPUT') render();
+    if (document.visibilityState === 'visible' && document.activeElement?.tagName !== 'TEXTAREA') render();
   });
 
   render();

@@ -1,6 +1,6 @@
 {
-  "name": "Abendbrot-Planer",
-  "short_name": "Abendbrot",
+  "name": "Dinner Planner",
+  "short_name": "Dinner",
   "lang": "de",
   "start_url": "./",
   "scope": "./",

@@ -1,5 +1,5 @@
 // Bei neuen/entfernten Dateien in ASSETS die Version erhöhen.
-const CACHE = 'abendbrot-v1';
+const CACHE = 'dinner-planner-v1';
 const ASSETS = ['./', 'index.html', 'style.css', 'app.js', 'manifest.webmanifest',
   'icons/icon-180.png', 'icons/icon-192.png', 'icons/icon-512.png'];
 
